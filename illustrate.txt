@@ -1,0 +1,5 @@
+Logger:
+In Node.js, a "logger" refers to a mechanism or library used to record information about an
+application's runtime behavior. This information, known as logs, can include events, errors,
+warnings, debugging details, and other relevant data.
+
