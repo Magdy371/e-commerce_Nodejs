@@ -1,14 +1,32 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+import helmet from 'helmet';
+import cors from 'cors';
 import connectDB from './config/db.js';
 import categoryRouter from './routes/categoryRoute.js'
 import ApiError from './utils/ApiError.js';
+import globalErroHandler from './middlewares/errorHandling.js'
+
 
 dotenv.config();
-connectDB();
+
+connectDB().then(()=>{
+    app.listen(PORT, ()=>{
+        console.log(`Server listening to port ${PORT}`);
+    });
+}).catch((err)=>{
+    console.error("DB connection failed", err);
+    process.exit(1);
+});
 
 const app = express();
+
+//Security middleware
+app.use(helmet());
+
+//Enable cors
+app.use(cors());
 
 //Middle were always before route
 app.use(express.json());
@@ -28,15 +46,5 @@ app.use((req, res, next) => {
 });
 
 
-
-// Global error handler
-app.use((err, req, res, next) => {
-    res.status(err.statusCode || 500).json({
-        status: err.status || "error",
-        message: err.message || "Internal Server Error",
-    });
-});
-
-app.listen(PORT, ()=>{
-    console.log(`Server listening to port ${PORT}`);
-});
+// Global error handler middleware
+app.use(globalErroHandler);

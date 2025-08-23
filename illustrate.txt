@@ -3,3 +3,11 @@ In Node.js, a "logger" refers to a mechanism or library used to record informati
 application's runtime behavior. This information, known as logs, can include events, errors,
 warnings, debugging details, and other relevant data.
 
+helmut:
+Security Header middleware for Express.js Applications
+Helmet helps secure your Express apps by setting various HTTP headers
+that protect against common vulnerabilities.
+
+cors:
+CORS allows your server to handle requests from different origins—critical
+when your frontend and backend are hosted separately.
