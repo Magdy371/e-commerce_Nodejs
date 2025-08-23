@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import connectDB from './config/db.js';
 import categoryRouter from './routes/categoryRoute.js'
+import ApiError from './utils/ApiError.js';
 
 dotenv.config();
 connectDB();
@@ -22,24 +23,18 @@ const PORT = process.env["PORT"] || 5000;
 app.use('/api/category',categoryRouter);
 
 
-// 404 handler (for unmatched routes)
-
-/*
-app.all('*',(req,res,next)=>{
-    const err = new Error(`Cannot got to this route ${req.originalUrl}`);
-    next(err);
-});
-
-* */
 app.use((req, res, next) => {
-    const err = new Error(`Cannot go to this route ${req.originalUrl}`);
-    err.statusCode = 404;
-    next(err);
+    next(new ApiError(`Cannot go to this route ${req.originalUrl}`, 404));
 });
 
 
-app.use((err,req,res,next)=>{
-    res.status(err.statusCode || 500).json({message: err.message || 'Internal Server Error',});
+
+// Global error handler
+app.use((err, req, res, next) => {
+    res.status(err.statusCode || 500).json({
+        status: err.status || "error",
+        message: err.message || "Internal Server Error",
+    });
 });
 
 app.listen(PORT, ()=>{
