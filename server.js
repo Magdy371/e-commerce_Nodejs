@@ -29,10 +29,7 @@ if(process.env.NODE_ENV === "development"){
 }
 
 
-
-
-
-app.use('/api/auth/register',registerRoute);
+app.use('/users',registerRoute);
 app.use('/api/category',categoryRouter);
 
 
@@ -43,9 +40,6 @@ app.use((req, res, next) => {
 
 // Global error handler middleware
 app.use(globalErroHandler);
-
-
-
 
 connectDB().then(()=>{
     app.listen(PORT, ()=>{

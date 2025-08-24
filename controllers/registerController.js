@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import userModel from '../models/Users.js';
+import userModel from '../models/users.js';
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from 'express-async-handler';
 
@@ -47,7 +47,7 @@ export const getUsers =asyncHandler(
 export const getUserById = asyncHandler(
     async(req, res, next)=>{
         const { id } = req.params;
-        const foundedUser = await userModer.findById(id);
+        const foundedUser = await userModel.findById(id);
         if(!foundedUser){
             return next(new ApiError('Not_found: User not found',404));
         }
@@ -56,52 +56,40 @@ export const getUserById = asyncHandler(
 );
 
 export const updateUser = asyncHandler(
-    async (req, res, next) => {
+    async (req, res, next)=>{
         const { id } = req.params;
-
-        const {
-            name, age, email, password, role, phone, address} = req.body || {};
-
-        if (!req.body || !Object.keys(req.body).length) {
-            return next(new ApiError('Bad_request: Request update cannot be empty', 400));
+        const { name, age, email, password, role, phone, address, profileImage } = req.body;
+        let user = await userModel.findById(id);
+        if (!user) {
+            return next(new ApiError('Not_found: User not found', 404));
         }
-
-        // Uniqueness check only if email or phone is provided
-        if (email || phone) {
-            const conflictUser = await userModel.findOne({
-                $or: [...(email ? [{ email }] : []), ...(phone ? [{ phone }] : [])],
-                _id: { $ne: id }
-            });
-            if (conflictUser) {
-                return next(new ApiError('Conflict: Email or phone already in use', 409));
-            }
-        }
-
-        // Build updated fields object only with provided fields
-        let updatedFields = {};
-        if (name !== undefined) updatedFields.name = name;
-        if (age !== undefined) updatedFields.age = age;
-        if (email !== undefined) updatedFields.email = email;
-        if (role !== undefined) updatedFields.role = role;
-        if (phone !== undefined) updatedFields.phone = phone;
-        if (address !== undefined) updatedFields.address = address;
         if (password) {
             const salt = await bcrypt.genSalt(10);
-            updatedFields.password = await bcrypt.hash(password, salt);
+            user.password = await bcrypt.hash(password, salt);
         }
+        // Update other fields
+        user.name = name || user.name;
+        user.age = age || user.age;
+        user.email = email || user.email;
+        user.role = role || user.role;
+        user.phone = phone || user.phone;
+        user.address = address || user.address;
+        user.profileImage = profileImage || user.profileImage;
 
-        const user = await userModel.findByIdAndUpdate(id, updatedFields, {
-            new: true,
-            runValidators: true
+        user = await user.save();
+        //202 ====> the update is accepted
+        return res.status(202).json({
+            user: {
+                id: user._id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+                phone: user.phone,
+                address: user.address,
+                age: user.age,
+                profileImage: user.profileImage
+            }
         });
-
-        if (!user) {
-            return next(new ApiError('Not-Found: user cannot be found', 404));
-        }
-
-        // Do not expose password in response
-        const { password: _, ...userData } = user.toObject();
-        return res.status(200).json({ user: userData });
     }
 );
 
