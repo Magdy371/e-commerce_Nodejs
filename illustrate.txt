@@ -11,3 +11,7 @@ that protect against common vulnerabilities.
 cors:
 CORS allows your server to handle requests from different origins—critical
 when your frontend and backend are hosted separately.
+
+ jwt.sign():
+ a method provided by the popular jsonwebtoken library in Node.js. It is used to create a signed JWT by
+ encoding a payload with a secret or private key. The resulting token contains encoded data and a signature that verifies its integrity and authenticity.

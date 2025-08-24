@@ -1,9 +1,12 @@
 const globalErroHandler = (err, req, res,next) => {
-    res.status(err.statusCode || 500).json({
-        status: err.status || "error",
-        error:err,
-        message: err.message || "Internal Server Error",
-        stack: err.stack,
+    const statusCode = err.statusCode || 500;
+    const status = err.status || 'error';
+
+    res.status(statusCode).json({
+        status,
+        message: err.message || 'Internal Server Error',
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
+
 };
 export default globalErroHandler;
