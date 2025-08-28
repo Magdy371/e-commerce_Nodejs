@@ -4,7 +4,6 @@ import userModel from '../models/users.js';
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from 'express-async-handler';
 
-
 export const registerUser = asyncHandler(
     async (req,res,next)=>{
         const { name, age, email, password, role, phone, address } = req.body;

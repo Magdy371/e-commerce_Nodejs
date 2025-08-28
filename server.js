@@ -6,6 +6,7 @@ import cors from 'cors';
 import connectDB from './config/db.js';
 import categoryRouter from './routes/categoryRoute.js';
 import registerRoute from './routes/registerRoute.js';
+import loginRoute from './routes/loginRoute.js'
 import ApiError from './utils/ApiError.js';
 import globalErroHandler from './middlewares/errorHandling.js'
 
@@ -31,6 +32,7 @@ if(process.env.NODE_ENV === "development"){
 
 app.use('/users',registerRoute);
 app.use('/api/category',categoryRouter);
+app.use('/login',loginRoute);
 
 
 app.use((req, res, next) => {
