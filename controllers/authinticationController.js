@@ -17,9 +17,12 @@ export const registerUser = asyncHandler(
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password,salt);
         const user = await userModel.create({ name, age, email, password: passwordHash, role, phone, address  });
-        const token = jwt.sign({sub:user._id},process.env.JWT_SECRET,{
-            expiresIn:process.env.JWT_EXPIRES_IN || '24h'
-        });
+        const token = jwt.sign(
+            { sub: user._id, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+        );
+
         return res.status(201).json({
             token,
             user:{
@@ -48,8 +51,14 @@ export const logninUser = asyncHandler(
             return next(new ApiError("authorization failed: invalid password check", 401));
         }
         const foundedRole = foundedEmail.role;
-        return res.status(200).json({'message':'Logged in successfully',
-            role:foundedRole});
+        const token = jwt.sign({sub:foundedEmail.id,role:foundedRole},process.env.JWT_SECRET,{
+            expiresIn: process.env.JWT_EXPIRES_IN ||'24h'
+        });
+        return res.status(200).json({
+            message:'Logged in successfully',
+            role:foundedRole,
+            token:token
+        });
     }
 );
 

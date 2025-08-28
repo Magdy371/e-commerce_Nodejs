@@ -9,6 +9,7 @@ import usersRoute from "./routes/usersRoute.js";
 import authinticationRoute from "./routes/authinticationRoute.js"
 import ApiError from './utils/ApiError.js';
 import globalErroHandler from './middlewares/errorHandling.js'
+import authMiddleware from "./middlewares/authMiddleware.js";
 
 
 dotenv.config();
@@ -31,7 +32,7 @@ if(process.env.NODE_ENV === "development"){
 
 
 app.use('/api/auth',authinticationRoute);
-app.use('/users',usersRoute);
+app.use('/users',authMiddleware,usersRoute);
 app.use('/api/category',categoryRouter);
 
 

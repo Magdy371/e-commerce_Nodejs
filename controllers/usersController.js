@@ -6,6 +6,9 @@ import asyncHandler from 'express-async-handler';
 
 export const getUsers =asyncHandler(
     async(req, res,next)=>{
+        if(req.user.role!=='admin'){
+            return next(new ApiError('Forbidden: Only admin can view all users', 403));
+        }
         const allUsers = await userModel.find();
         return res.status(200).json({count:allUsers.length, users:allUsers});
     }
@@ -14,6 +17,9 @@ export const getUsers =asyncHandler(
 export const getUserById = asyncHandler(
     async(req, res, next)=>{
         const { id } = req.params;
+        if(req.user.role!=='admin'&&req.user.id !==id){
+            return next(new ApiError('Forbidden: You can only view your own info', 403));
+        }
         const foundedUser = await userModel.findById(id);
         if(!foundedUser){
             return next(new ApiError('Not_found: User not found',404));
@@ -25,6 +31,9 @@ export const getUserById = asyncHandler(
 export const updateUser = asyncHandler(
     async (req, res, next)=>{
         const { id } = req.params;
+        if(req.user.role!=='admin'&& req.user.id!==id){
+            return next(new ApiError('Forbidden: You can only update your own info', 403));
+        }
         const { name, age, email, password, role, phone, address, profileImage } = req.body;
         let user = await userModel.findById(id);
         if (!user) {
@@ -65,6 +74,9 @@ export const updateUser = asyncHandler(
 export const deleteUser = asyncHandler(
     async (req,res,next)=>{
         const { id } = req.params;
+        if(req.user.role!=='admin'&& req.user.id!==id){
+            return next(new ApiError('Forbidden: You can only delete your own info', 403));
+        }
         const user = await userModel.findByIdAndDelete(id);
         if(!user){
             return next(new ApiError('Not-Found: user cannot be found',404));
